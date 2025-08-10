@@ -33,32 +33,39 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ---
 
-## 請求與回應流程
+### 請求與回應流程說明
 
-下面以最簡化的流程示意，去掉不必要的連線箭頭，一眼看出從用戶端到 AI 再回到用戶端的完整互動：
+以下將核心請求與回應步驟標上編號，搭配簡易圖示，讓人一眼看懂系統如何從用戶端—經由 Nginx、Laravel API、AI 微服務—再回到用戶端。
 
-1. 用戶端（Flutter App / Vue 3 Web UI）  
-2. Nginx 作為 API Gateway  
+1. 用戶端（Flutter App / Vue 3 Web UI）發送 HTTP 請求  
+2. Nginx API Gateway 接收並轉發請求  
 3. Laravel API 處理業務邏輯  
-4. Flask AI 微服務計算推薦  
-5. 回傳經 Laravel 與 Nginx 處理後的結果  
-6. 用戶端更新畫面  
+4. Laravel 向 Flask AI 微服務請求智慧推薦  
+5. Flask AI 計算完成後回傳建議給 Laravel API  
+6. Laravel API 封裝最終回應  
+7. Nginx 將回應返回給原始用戶端  
 
 ```mermaid
 flowchart LR
-  C[客戶端<br/>Flutter / Vue] --> NGN[Nginx API Gateway]
-  NGN --> LAPI[Laravel API]
-  LAPI --> AI[Flask AI 微服務]
-  AI --> LAPI
-  LAPI --> NGN
-  NGN --> C
+  C[用戶端<br/>Flutter / Vue]
+    -- "1. 發送請求" --> 
+  NGN[Nginx API Gateway]
+    -- "2. 轉發請求" --> 
+  LAPI[Laravel API]
+    -- "3. 處理業務邏輯" --> 
+  AI[Flask AI 微服務]
+    -- "4. 回傳建議" --> 
+  LAPI
+    -- "5. 封裝回應" --> 
+  NGN
+    -- "6. 返回結果" --> 
+  C
 ```
 
-- 客戶端只看到一次請求和一次回應  
-- Nginx 統一接收與轉發，保障安全和高可用  
-- Laravel API 內部會讀寫資料庫、快取、佇列，但外部只與它互動  
-- Flask AI 微服務專責推薦運算，與 Laravel 透過單一路徑溝通  
-- 最後回傳結果給客戶端，框架再依據回傳的 JSON 更新 UI
+- 箭頭文字標示步驟編號與簡述  
+- 請求與回應皆只需穿過這四個節點  
+- Laravel API 內部還會與資料庫、Redis、RabbitMQ 互動，但外部只看得到它  
+- 最後由客戶端收到 JSON，透過框架更新 UI，完成一次完整互動流程
 
 圖例：箭頭表示資料流或服務呼叫方向。Nginx 作為網關，將外部請求路由至對應服務。GitHub Actions 負責自動化建置、測試與部署。
 
