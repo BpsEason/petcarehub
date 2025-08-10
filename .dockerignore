@@ -1,0 +1,35 @@
+.git
+.gitignore
+.env
+README.md
+docker-compose.yml
+.github/
+
+# Ignore backend specific files if they are not needed in specific service builds
+backend/vendor/
+backend/node_modules/
+backend/public/build/
+backend/storage/
+
+# Ignore frontend specific files
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Ignore AI service specific files
+ai-service/__pycache__/
+ai-service/.venv/
+
+# Ignore flutter specific files
+flutter_app/build/
+flutter_app/.dart_tool/
+flutter_app/.flutter-plugins/
+flutter_app/.flutter-plugins-dependencies/
+flutter_app/.idea/
+flutter_app/.vscode/
+flutter_app/ios/
+flutter_app/android/
+flutter_app/macos/
+flutter_app/windows/
+flutter_app/linux/
+flutter_app/web/
