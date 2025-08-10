@@ -44,16 +44,16 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 ```mermaid
 flowchart LR
   subgraph clients [用戶端]
-    A1["Flutter App"]
-    A2["Vue 3 Web UI"]
+    A1["Flutter App"] -->|1. 發送 HTTP Request| B
+    A2["Vue 3 Web UI"] -->|1. 發送 HTTP Request| B
   end
 
   subgraph gateway [API Gateway]
-    B["Nginx"]
+    B["Nginx"]  -->|2. 轉發 Request| C
   end
 
   subgraph main [主服務]
-    C["Laravel API"]
+    C["Laravel API"]  -->|3. 存取／更新資料| D
     D["資料庫"]
     E["快取"]
     F["訊息佇列"]
