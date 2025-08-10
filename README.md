@@ -50,12 +50,11 @@ flowchart LR
 
   C -->|1. 發送 HTTP 請求| NG
   NG -->|2. 轉發到 Laravel API| LAPI
-  LAPI -->|3. 業務邏輯 (DB / Cache / MQ)| LAPI
+  LAPI -->|3. 業務邏輯 DB / Cache / MQ | LAPI
   LAPI -->|4. 呼叫 AI 微服務| AI
   AI -->|5. 回傳智慧推薦| LAPI
   LAPI -->|6. 封裝最終回應| NG
   NG -->|7. 返回 JSON 結果| C
-
 ```
 
 - Step 1：用戶端發起請求（例如「取得任務列表」）。  
