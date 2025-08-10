@@ -33,7 +33,20 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ---
 
-## 系統架構概覽
+## 請求與回應流程
+
+下面說明從用戶端發出請求到最終返回的完整資料流，讓人一眼就能理解系統運作節點與步驟。
+
+### 核心流程
+
+1. 用戶端（Flutter App / Vue 3 Web UI）發出 HTTP 請求至 Nginx  
+2. Nginx 作為 API Gateway，將請求反向代理並加載 SSL、CORS、壓縮等通用設定  
+3. 請求抵達 Laravel API，執行業務邏輯並讀寫 MySQL、Redis、RabbitMQ  
+4. 若需智慧推薦，Laravel API 向 Flask AI 微服務提出 POST 請求  
+5. Flask AI 微服務計算演算法，生成最優化建議並回傳 JSON  
+6. Laravel API 整合 AI 建議與其他資料，封裝成最終回應  
+7. Nginx 收到 Laravel 回應後，再次處理通用設定，將結果返回給原始用戶端  
+8. 用戶端接收 JSON 回應並透過框架更新畫面，完成一次互動流程  
 
 ```mermaid
 flowchart LR
@@ -49,21 +62,30 @@ flowchart LR
   subgraph 服務核心
     LAPI[Laravel API]
     AI[Flask AI Service]
-    MQ[RabbitMQ / Kafka]
     DB[MySQL / PostgreSQL]
-    CACHE[Redis Cache]
+    CACHE[Redis]
+    MQ[RabbitMQ / Kafka]
   end
 
-  F --> NGN
-  W --> NGN
-  NGN --> LAPI
+  %% 請求路徑
+  F --> NGN --> LAPI
+  W --> NGN --> LAPI
   LAPI --> DB
   LAPI --> CACHE
   LAPI --> MQ
   LAPI --> AI
-  AI --> LAPI
 
+  %% 回應路徑
+  AI --> LAPI --> NGN
+  NGN --> F
+  NGN --> W
 ```
+
+- 箭頭方向代表資料流向，左側為請求流程，右側為回應流程。  
+- Nginx 統一入口與出口，保障安全性與高可用性。  
+- Laravel API 作為核心，負責業務邏輯與各服務整合。  
+- Flask AI 微服務獨立部署，專司智慧推薦運算。  
+- 用戶端框架接收回傳資料，動態更新 UI，完成一次完整互動。
 
 圖例：箭頭表示資料流或服務呼叫方向。Nginx 作為網關，將外部請求路由至對應服務。GitHub Actions 負責自動化建置、測試與部署。
 
