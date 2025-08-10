@@ -49,19 +49,19 @@ flowchart LR
   subgraph 服務核心
     LAPI[Laravel API]
     AI[Flask AI Service]
-    MQ[RabbitMQ / Kafka]
-    DB[MySQL / PostgreSQL]
-    CACHE[Redis Cache]
   end
 
+  %% 請求順序
   F --> NGN
   W --> NGN
   NGN --> LAPI
-  LAPI --> DB
-  LAPI --> CACHE
-  LAPI --> MQ
   LAPI --> AI
   AI --> LAPI
+
+  %% 回應順序
+  LAPI --> NGN
+  NGN --> F
+  NGN --> W
 
 ```
 
