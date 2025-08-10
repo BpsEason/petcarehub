@@ -43,7 +43,6 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ```mermaid
 flowchart LR
-  %% Subgraph ID 使用 ASCII，方括號中顯示中文名稱
   subgraph clients [用戶端]
     A1["Flutter App"]
     A2["Vue 3 Web UI"]
