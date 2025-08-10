@@ -207,4 +207,174 @@ class ApiService {
 
 ---
 
-更多細節與使用範例，請參考 `/docs` 目錄與專案 Wiki。若想參與開發或提出建議，歡迎查看 CONTRIBUTING.md。
+# 手動安裝與執行 PetCareHub 基本程式
+
+以下步驟示範如何在本機手動安裝並執行專案的關鍵模組（Laravel API、Vue 3 前端、Flask AI 微服務、Flutter App），不透過容器化。
+
+---
+
+## 1. 取得原始碼
+
+```bash
+# 下載程式庫到本地
+git clone https://github.com/BpsEason/petcarehub.git
+cd petcarehub
+```
+
+---
+
+## 2. Laravel API（手動安裝）
+
+1. 建立環境變數檔案  
+   ```bash
+   cp .env.example .env
+   ```
+2. 編輯 `.env`，填入資料庫連線與應用網址  
+   ```env
+   APP_URL=http://localhost:8000
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=petcarehub
+   DB_USERNAME=root
+   DB_PASSWORD=secret
+   ```
+3. 安裝相依套件  
+   ```bash
+   composer install
+   ```
+4. 產生應用程式金鑰  
+   ```bash
+   php artisan key:generate
+   ```
+5. 執行遷移與種子資料  
+   ```bash
+   php artisan migrate --seed
+   ```
+6. 啟動內建伺服器  
+   ```bash
+   php artisan serve --host=127.0.0.1 --port=8000
+   ```
+   API 伺服器啟動於 http://localhost:8000
+
+---
+
+## 3. Vue 3 前端（手動安裝）
+
+1. 切換到前端目錄  
+   ```bash
+   cd web
+   ```
+2. 安裝套件並啟動開發伺服器  
+   ```bash
+   npm install
+   npm run dev
+   ```
+3. 編輯 `src/env.d.ts` 或在 `.env` 中設定  
+   ```env
+   VITE_API_URL=http://localhost:8000/api
+   ```
+4. 打開瀏覽器，前往 http://localhost:5173
+
+---
+
+## 4. Flask AI 微服務（手動安裝）
+
+1. 切換到 AI 服務目錄  
+   ```bash
+   cd ai_service
+   ```
+2. 建立並啟用虛擬環境  
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. 安裝 Python 套件  
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. 建立環境變數檔 `.env`  
+   ```env
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   DATABASE_URI=mysql+pymysql://root:secret@127.0.0.1:3306/petcarehub
+   SECRET_KEY=your_flask_secret
+   ```
+5. 啟動 Flask 伺服器  
+   ```bash
+   flask run --host=127.0.0.1 --port=5000
+   ```
+   AI 推薦服務啟動於 http://localhost:5000
+
+---
+
+## 5. Flutter 手機 App（手動安裝）
+
+1. 切換到行動端目錄  
+   ```bash
+   cd mobile
+   ```
+2. 安裝相依套件  
+   ```bash
+   flutter pub get
+   ```
+3. 編輯 `lib/config.dart`，更新 API 與 AI 服務位址  
+   ```dart
+   const String apiBaseUrl = 'http://localhost:8000/api';
+   const String aiServiceUrl = 'http://localhost:5000';
+   ```
+4. 執行 App  
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 6. 關鍵程式範例與註解
+
+### Laravel Route（`routes/api.php`）
+```php
+// 定義 POST /pets，要呼叫 PetController@store
+Route::post('/pets', [App\Http\Controllers\PetController::class, 'store']);
+```
+
+### Vue 3 呼叫 API（`src/api/pets.js`）
+```js
+export async function createPet(petData) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/pets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(petData), // 轉 JSON 送出
+  });
+  return res.json(); // 取得伺服器回應
+}
+```
+
+### Flask 建議端點（`ai_service/app.py`）
+```python
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    data = request.json
+    # 以 AI 模型計算最佳建議
+    suggestion = model.predict(data)
+    return jsonify({'recommendation': suggestion})
+```
+
+### Flutter 調用函式（`lib/services/api_service.dart`）
+```dart
+Future<Pet> createPet(Pet pet) async {
+  final res = await http.post(
+    Uri.parse('$apiBaseUrl/pets'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(pet.toJson()), // 轉成 JSON 字串
+  );
+  if (res.statusCode == 201) {
+    return Pet.fromJson(jsonDecode(res.body));
+  }
+  throw Exception('建立寵物失敗');
+}
+```
+
+---
+
+完成上述步驟後，即可在本機環境手動啟動並測試 PetCareHub 的各項核心功能。若有疑問，請參考專案內 `/docs` 或 GitHub Wiki。
