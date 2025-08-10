@@ -43,38 +43,46 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ```mermaid
 flowchart LR
-    %% Subgraph ID 使用 ASCII，方括號中顯示中文名稱
-    subgraph clients ["用戶端"]
-        A1["Flutter App"]
-        A2["Vue 3 Web UI"]
+    %% 用戶端
+    subgraph CLIENTS ["用戶端"]
+        A1["📱 Flutter App"]
+        A2["🖥️ Vue 3 Web UI"]
     end
 
-    subgraph gateway ["API Gateway"]
-        B["Nginx"]
+    %% API Gateway
+    subgraph GATEWAY ["API Gateway (Nginx)"]
+        B["🔗 Nginx"]
     end
 
-    subgraph main ["主服務"]
-        C["Laravel API"]
-        D["MySQL 資料庫"]
-        E["Redis 快取"]
-        F["RabbitMQ 訊息佇列"]
+    %% 主後端服務
+    subgraph BACKEND ["主後端服務"]
+        C["🎯 Laravel API"]
+        D["🗄️ MySQL"]
+        E["⚡ Redis"]
+        F["📬 RabbitMQ"]
     end
 
-    subgraph ai ["AI 微服務"]
-        G["Flask AI Service"]
+    %% AI 微服務
+    subgraph AI_SERVICE ["AI 微服務"]
+        G["🧠 Flask AI Service"]
     end
 
-    A1 -->|1. 發送 HTTP Request| B
-    A2 -->|1. 發送 HTTP Request| B
-    B -->|2. 轉發 Request| C
-    C -->|3. 讀寫資料| D
-    C -->|3. 讀寫快取| E
-    C -->|3. 推送/消費訊息| F
-    C -->|4. 呼叫 AI 建議 HTTP| G
-    G -->|5. 回傳智慧建議 JSON| C
-    C -->|6. 組裝 JSON 回應| B
-    B -->|7. 回傳最終結果| A1
-    B -->|7. 回傳最終結果| A2
+    %% 資料流
+    A1 -->|1️⃣ 發送請求| B
+    A2 -->|1️⃣ 發送請求| B
+    B -->|2️⃣ 路由至 API| C
+
+    C -->|3️⃣ 查詢資料庫| D
+    C -->|3️⃣ 查詢快取| E
+    C -->|3️⃣ 發送任務訊息| F
+
+    C -->|4️⃣ 呼叫 AI 建議| G
+    G -->|5️⃣ 回傳建議結果| C
+
+    C -->|6️⃣ 組裝 JSON 回應| B
+    B -->|7️⃣ 回傳結果| A1
+    B -->|7️⃣ 回傳結果| A2
+
 
 ```
 
