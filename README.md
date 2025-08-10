@@ -33,41 +33,37 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ---
 
-### 請求與回應流程說明
+明白了，我將直接在 README 中以 Mermaid 放上正確的流程圖描述，移除 Image 標籤。
 
-以下將核心請求與回應步驟標上編號，搭配簡易圖示，讓人一眼看懂系統如何從用戶端—經由 Nginx、Laravel API、AI 微服務—再回到用戶端。
+---
 
-1. 用戶端（Flutter App / Vue 3 Web UI）發送 HTTP 請求  
-2. Nginx API Gateway 接收並轉發請求  
-3. Laravel API 處理業務邏輯  
-4. Laravel 向 Flask AI 微服務請求智慧推薦  
-5. Flask AI 計算完成後回傳建議給 Laravel API  
-6. Laravel API 封裝最終回應  
-7. Nginx 將回應返回給原始用戶端  
+## 請求與回應流程
+
+以下示意從用戶端到 AI 微服務再回到用戶端的完整資料流，讓流程更清晰。
 
 ```mermaid
 flowchart LR
-  C[用戶端<br/>Flutter / Vue]
-    -- "1. 發送請求" --> 
-  NGN[Nginx API Gateway]
-    -- "2. 轉發請求" --> 
+  C[用戶端<br/>Flutter App / Vue 3 Web UI]
+  NG[Nginx API Gateway]
   LAPI[Laravel API]
-    -- "3. 處理業務邏輯" --> 
   AI[Flask AI 微服務]
-    -- "4. 回傳建議" --> 
-  LAPI
-    -- "5. 封裝回應" --> 
-  NGN
-    -- "6. 返回結果" --> 
-  C
+
+  C -->|1. 發送 HTTP 請求| NG
+  NG -->|2. 轉發到 Laravel API| LAPI
+  LAPI -->|3. 業務邏輯 (DB / Cache / MQ)| LAPI
+  LAPI -->|4. 呼叫 AI 微服務| AI
+  AI -->|5. 回傳智慧推薦| LAPI
+  LAPI -->|6. 封裝最終回應| NG
+  NG -->|7. 返回 JSON 結果| C
 ```
 
-- 箭頭文字標示步驟編號與簡述  
-- 請求與回應皆只需穿過這四個節點  
-- Laravel API 內部還會與資料庫、Redis、RabbitMQ 互動，但外部只看得到它  
-- 最後由客戶端收到 JSON，透過框架更新 UI，完成一次完整互動流程
-
-圖例：箭頭表示資料流或服務呼叫方向。Nginx 作為網關，將外部請求路由至對應服務。GitHub Actions 負責自動化建置、測試與部署。
+- Step 1：用戶端發起請求（例如「取得任務列表」）。  
+- Step 2：Nginx 作為 Gateway，處理 SSL、CORS，並將請求路由到 Laravel API。  
+- Step 3：Laravel API 執行核心邏輯，可能讀取資料庫、快取或放入訊息佇列。  
+- Step 4：若需要智慧建議，Laravel API 再呼叫 Flask AI 微服務。  
+- Step 5：AI 服務運算完成，將推薦結果回傳給 Laravel API。  
+- Step 6：Laravel API 封裝所有資料後，將 JSON 回應送回 Nginx。  
+- Step 7：Nginx 將最終結果回傳給原始用戶端，前端框架接收後更新畫面。
 
 ---
 
