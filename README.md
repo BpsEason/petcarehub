@@ -63,17 +63,7 @@ flowchart LR
     G["Flask AI Service"]
   end
 
-  A1 -->|1. 發送 HTTP Request| B
-  A2 -->|1. 發送 HTTP Request| B
-  B  -->|2. 轉發 Request| C
-  C  -->|3. 存取／更新資料| D
-  C  -->|3. 存取／更新資料| E
-  C  -->|3. 推送／讀取訊息| F
-  C  -->|4. 呼叫 AI 建議| G
-  G  -->|5. 回傳智慧建議| C
-  C  -->|6. 組裝 JSON 回應| B
-  B  -->|7. 回傳最終結果| A1
-  B  -->|7. 回傳最終結果| A2
+
 
 ```
 
