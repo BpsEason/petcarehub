@@ -46,7 +46,7 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ```mermaid
 flowchart LR
-  C[客戶端<br/>(Flutter / Vue)] --> NGN[Nginx API Gateway]
+  C[客戶端<br/>Flutter / Vue] --> NGN[Nginx API Gateway]
   NGN --> LAPI[Laravel API]
   LAPI --> AI[Flask AI 微服務]
   AI --> LAPI
