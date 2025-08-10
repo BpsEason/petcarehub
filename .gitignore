@@ -1,0 +1,62 @@
+# Laravel
+/backend/vendor
+/backend/node_modules
+/backend/.env
+/backend/.phpunit.result.cache
+/backend/public/storage
+/backend/storage/*.key
+/backend/storage/*.sqlite
+/backend/storage/debugbar/*.json
+/backend/storage/logs/*.log
+/backend/bootstrap/cache/*.php
+
+# Vue
+/frontend/node_modules
+/frontend/dist
+/frontend/.vite/
+/frontend/.env.local
+/frontend/.env.*.local
+
+# AI Service
+/ai-service/__pycache__/
+/ai-service/.venv/
+/ai-service/*.pyc
+/ai-service/*.egg-info/
+/ai-service/model.pkl # If you have saved model artifacts
+
+# Flutter
+/flutter_app/.dart_tool/
+/flutter_app/.flutter-plugins
+/flutter_app/.flutter-plugins-dependencies
+/flutter_app/.idea/
+/flutter_app/.vscode/
+/flutter_app/build/
+/flutter_app/ios/.symlinks/
+/flutter_app/android/.gradle/
+/flutter_app/android/app/src/main/kotlin/com/<your_company>/<your_app_name>/.generated_plugins/
+/flutter_app/.flutter-plugins-dependencies
+/flutter_app/.packages
+/flutter_app/macos/
+/flutter_app/windows/
+/flutter_app/linux/
+/flutter_app/web/
+/flutter_app/coverage/
+
+# Docker
+.dockerignore
+.env
+
+# Logs
+logs/
+*.log
+
+# Misc
+.DS_Store
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.bak
+*.swo
+
