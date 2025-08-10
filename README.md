@@ -36,37 +36,32 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 ## 系統架構概覽
 
 ```mermaid
-graph TD
-  subgraph Frontend
-    F1[Flutter Mobile App]
-    F2[Vue 3 Web UI]
+flowchart LR
+  subgraph 用戶端
+    F[Flutter App]
+    W[Vue 3 Web UI]
   end
 
-  subgraph Backend
-    B1[Laravel API]
+  subgraph API_Gateway
+    NGN[Nginx]
   end
 
-  subgraph Services
-    S1[Flask AI 微服務]
-    S2[MySQL 資料庫]
-    S3[Redis 快取/MQ]
+  subgraph 服務核心
+    LAPI[Laravel API]
+    AI[Flask AI Service]
+    MQ[RabbitMQ / Kafka]
+    DB[MySQL / PostgreSQL]
+    CACHE[Redis Cache]
   end
 
-  F1 --> B1
-  F2 --> B1
-  B1 --> S1
-  B1 --> S2
-  B1 --> S3
-
-  Nginx[Nginx 反向代理/負載均衡] --> F2
-  Nginx --> B1
-  Nginx --> S1
-
-  DockerRegistry[Docker Registry] --> DockerHub[Docker Hub / GCR]
-  GitHubActions[GitHub Actions CI/CD] --> DockerRegistry
-  GitHubActions --> B1
-  GitHubActions --> F2
-  GitHubActions --> S1
+  F --> NGN
+  W --> NGN
+  NGN --> LAPI
+  LAPI --> DB
+  LAPI --> CACHE
+  LAPI --> MQ
+  LAPI --> AI
+  AI --> LAPI
 
 ```
 
