@@ -43,18 +43,39 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ```mermaid
 flowchart LR
-  C[用戶端<br/>Flutter App / Vue 3 Web UI]
-  NG[Nginx API Gateway]
-  LAPI[Laravel API]
-  AI[Flask AI 微服務]
+  %% Subgraph ID 使用 ASCII，方括號中顯示中文名稱
+  subgraph clients [用戶端]
+    A1["Flutter App"]
+    A2["Vue 3 Web UI"]
+  end
 
-  C -->|1. 發送 HTTP 請求| NG
-  NG -->|2. 轉發到 Laravel API| LAPI
-  LAPI -->|3. 業務邏輯 DB / Cache / MQ | LAPI
-  LAPI -->|4. 呼叫 AI 微服務| AI
-  AI -->|5. 回傳智慧推薦| LAPI
-  LAPI -->|6. 封裝最終回應| NG
-  NG -->|7. 返回 JSON 結果| C
+  subgraph gateway [API Gateway]
+    B["Nginx"]
+  end
+
+  subgraph main [主服務]
+    C["Laravel API"]
+    D["資料庫"]
+    E["快取"]
+    F["訊息佇列"]
+  end
+
+  subgraph ai [AI 微服務]
+    G["Flask AI Service"]
+  end
+
+  A1 -->|1. 發送 HTTP Request| B
+  A2 -->|1. 發送 HTTP Request| B
+  B  -->|2. 轉發 Request| C
+  C  -->|3. 存取／更新資料| D
+  C  -->|3. 存取／更新資料| E
+  C  -->|3. 推送／讀取訊息| F
+  C  -->|4. 呼叫 AI 建議| G
+  G  -->|5. 回傳智慧建議| C
+  C  -->|6. 組裝 JSON 回應| B
+  B  -->|7. 回傳最終結果| A1
+  B  -->|7. 回傳最終結果| A2
+
 ```
 
 - Step 1：用戶端發起請求（例如「取得任務列表」）。  
