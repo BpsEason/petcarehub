@@ -35,57 +35,30 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 
 ## 請求與回應流程
 
-下面說明從用戶端發出請求到最終返回的完整資料流，讓人一眼就能理解系統運作節點與步驟。
+下面以最簡化的流程示意，去掉不必要的連線箭頭，一眼看出從用戶端到 AI 再回到用戶端的完整互動：
 
-### 核心流程
-
-1. 用戶端（Flutter App / Vue 3 Web UI）發出 HTTP 請求至 Nginx  
-2. Nginx 作為 API Gateway，將請求反向代理並加載 SSL、CORS、壓縮等通用設定  
-3. 請求抵達 Laravel API，執行業務邏輯並讀寫 MySQL、Redis、RabbitMQ  
-4. 若需智慧推薦，Laravel API 向 Flask AI 微服務提出 POST 請求  
-5. Flask AI 微服務計算演算法，生成最優化建議並回傳 JSON  
-6. Laravel API 整合 AI 建議與其他資料，封裝成最終回應  
-7. Nginx 收到 Laravel 回應後，再次處理通用設定，將結果返回給原始用戶端  
-8. 用戶端接收 JSON 回應並透過框架更新畫面，完成一次互動流程  
+1. 用戶端（Flutter App / Vue 3 Web UI）  
+2. Nginx 作為 API Gateway  
+3. Laravel API 處理業務邏輯  
+4. Flask AI 微服務計算推薦  
+5. 回傳經 Laravel 與 Nginx 處理後的結果  
+6. 用戶端更新畫面  
 
 ```mermaid
 flowchart LR
-  subgraph 用戶端
-    F[Flutter App]
-    W[Vue 3 Web UI]
-  end
-
-  subgraph API_Gateway
-    NGN[Nginx]
-  end
-
-  subgraph 服務核心
-    LAPI[Laravel API]
-    AI[Flask AI Service]
-    DB[MySQL / PostgreSQL]
-    CACHE[Redis]
-    MQ[RabbitMQ / Kafka]
-  end
-
-  %% 請求路徑
-  F --> NGN --> LAPI
-  W --> NGN --> LAPI
-  LAPI --> DB
-  LAPI --> CACHE
-  LAPI --> MQ
-  LAPI --> AI
-
-  %% 回應路徑
-  AI --> LAPI --> NGN
-  NGN --> F
-  NGN --> W
+  C[客戶端<br/>(Flutter / Vue)] --> NGN[Nginx API Gateway]
+  NGN --> LAPI[Laravel API]
+  LAPI --> AI[Flask AI 微服務]
+  AI --> LAPI
+  LAPI --> NGN
+  NGN --> C
 ```
 
-- 箭頭方向代表資料流向，左側為請求流程，右側為回應流程。  
-- Nginx 統一入口與出口，保障安全性與高可用性。  
-- Laravel API 作為核心，負責業務邏輯與各服務整合。  
-- Flask AI 微服務獨立部署，專司智慧推薦運算。  
-- 用戶端框架接收回傳資料，動態更新 UI，完成一次完整互動。
+- 客戶端只看到一次請求和一次回應  
+- Nginx 統一接收與轉發，保障安全和高可用  
+- Laravel API 內部會讀寫資料庫、快取、佇列，但外部只與它互動  
+- Flask AI 微服務專責推薦運算，與 Laravel 透過單一路徑溝通  
+- 最後回傳結果給客戶端，框架再依據回傳的 JSON 更新 UI
 
 圖例：箭頭表示資料流或服務呼叫方向。Nginx 作為網關，將外部請求路由至對應服務。GitHub Actions 負責自動化建置、測試與部署。
 
