@@ -42,40 +42,39 @@ PetCareHub 是一個創新的全端解決方案，旨在簡化和優化寵物照
 以下示意從用戶端到 AI 微服務再回到用戶端的完整資料流，讓流程更清晰。
 
 ```mermaid
-flowchart LR
-    %% Subgraph ID 使用 ASCII，方括號中顯示中文名稱
-    subgraph clients ["用戶端"]
-        A1["Flutter App"]
-        A2["Vue 3 Web UI"]
-    end
+graph TD
+  %% Subgraph ID 使用 ASCII，方括號中顯示中文名稱
+  subgraph clients [用戶端]
+    A1["Flutter App"]
+    A2["Vue 3 Web UI"]
+  end
 
-    subgraph gateway ["API Gateway"]
-        B["Nginx"]
-    end
+  subgraph gateway [API Gateway]
+    B["Nginx"]
+  end
 
-    subgraph main ["主服務"]
-        C["Laravel API"]
-        D["資料庫"]
-        E["快取"]
-        F["訊息佇列"]
-    end
+  subgraph main [主服務]
+    C["Laravel API"]
+    D["資料庫"]
+    E["快取"]
+    F["訊息佇列"]
+  end
 
-    subgraph ai ["AI 微服務"]
-        G["Flask AI Service"]
-    end
+  subgraph ai [AI 微服務]
+    G["Flask AI Service"]
+  end
 
-    A1 -->|1. 發送 HTTP Request| B
-    A2 -->|1. 發送 HTTP Request| B
-    B -->|2. 轉發 Request| C
-    C -->|3. 存取／更新資料| D
-    C -->|3. 存取／更新資料| E
-    C -->|3. 推送／讀取訊息| F
-    C -->|4. 呼叫 AI 建議| G
-    G -->|5. 回傳智慧建議| C
-    C -->|6. 組裝 JSON 回應| B
-    B -->|7. 回傳最終結果| A1
-    B -->|7. 回傳最終結果| A2
-
+  A1 -->|1. 發送 HTTP Request| B
+  A2 -->|1. 發送 HTTP Request| B
+  B  -->|2. 轉發 Request| C
+  C  -->|3. 存取／更新資料| D
+  C  -->|3. 存取／更新資料| E
+  C  -->|3. 推送／讀取訊息| F
+  C  -->|4. 呼叫 AI 建議| G
+  G  -->|5. 回傳智慧建議| C
+  C  -->|6. 組裝 JSON 回應| B
+  B  -->|7. 回傳最終結果| A1
+  B  -->|7. 回傳最終結果| A2
 
 ```
 
