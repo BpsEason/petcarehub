@@ -1,0 +1,33 @@
+name: petcarehub_app
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  dio: ^5.0.0 # HTTP client
+  flutter_secure_storage: ^9.0.0 # 安全儲存 API token
+  provider: ^6.0.5 # 狀態管理 (可選 Riverpod/Riverbloc)
+  firebase_messaging: ^14.0.0 # FCM 推播 (如果使用 Firebase)
+  # riverpod / riverbloc 根據需求選擇
+  flutter_riverpod: ^2.4.9
+  # flutter_bloc: ^8.1.3
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  mockito: ^5.4.4 # For mocking in tests
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/

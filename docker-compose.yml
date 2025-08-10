@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: petcarehub-nginx
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./frontend/dist:/usr/share/nginx/html # 掛載前端的 build 結果
+    ports:
+      - "80:80"
+      - "443:443" # For SSL if enabled
+    depends_on:
+      - laravel-api
+      - vue-frontend # 雖然 nginx 直接服務前端靜態，但確保前端建置完成
+    networks:
+      - petcarehub-network
+
+  laravel-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: petcarehub-laravel-api
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/var/www/html # 開發模式下方便檔案同步
+    ports:
+      - "9000:9000" # PHP-FPM 端口，僅供內部 Nginx 使用
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - petcarehub-network
+
+  vue-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: petcarehub-vue-frontend
+    volumes:
+      - ./frontend:/app # 開發模式下方便檔案同步
+      - /app/node_modules # 避免 host 端 node_modules 覆蓋容器內
+    ports:
+      - "5173:5173" # Vite 開發伺服器端口，用於前端開發熱重載
+    networks:
+      - petcarehub-network
+
+  python-ai:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: petcarehub-python-ai
+    ports:
+      - "5000:5000"
+    networks:
+      - petcarehub-network
+
+  mysql:
+    image: mysql:8
+    container_name: petcarehub-mysql
+    environment:
+      MYSQL_DATABASE: petcare
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # 僅用於開發方便
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - petcarehub-network
+
+  redis:
+    image: redis:6-alpine
+    container_name: petcarehub-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - petcarehub-network
+
+networks:
+  petcarehub-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
