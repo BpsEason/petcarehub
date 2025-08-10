@@ -1,0 +1,125 @@
+name: PetCareHub CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, zip, gd, mbstring, exif, pcntl, bcmath, opcache, sockets
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+          tools: composer:v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x' # Use a specific version or range
+
+      - name: Start Docker services (for DB/Redis)
+        run: docker-compose -f docker-compose.yml up -d mysql redis
+
+      # --- Backend (Laravel) ---
+      - name: Copy .env for Backend
+        run: cp backend/.env.example backend/.env
+
+      - name: Install Backend Dependencies
+        run: docker-compose run --rm laravel-api composer install --no-dev --no-interaction --prefer-dist
+        # 使用 run --rm 避免產生多餘的容器，並在完成後移除
+
+      - name: Generate Laravel Key
+        run: docker-compose exec laravel-api php artisan key:generate
+
+      - name: Run Backend Migrations
+        run: docker-compose exec laravel-api php artisan migrate --force
+
+      - name: Run Backend Tests
+        run: docker-compose exec laravel-api php artisan test
+
+      # --- Frontend (Vue) ---
+      - name: Install Frontend Dependencies
+        run: npm install
+        working-directory: frontend/
+
+      - name: Run Frontend Unit Tests
+        run: npm run test:unit
+        working-directory: frontend/
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: frontend/
+
+      # --- AI Service (Python) ---
+      - name: Install AI Service Dependencies
+        run: pip install -r requirements.txt
+        working-directory: ai-service/
+
+      - name: Run AI Service Tests
+        run: pytest
+        working-directory: ai-service/
+
+      # --- Flutter App ---
+      - name: Install Flutter Dependencies
+        run: flutter pub get
+        working-directory: flutter_app/
+
+      - name: Run Flutter Tests
+        run: flutter test
+        working-directory: flutter_app/
+
+      # --- Docker Build & Push (Optional, for deployment) ---
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # - name: Build and push Backend image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ./backend
+      #     push: true
+      #     tags: your-dockerhub-user/petcarehub-backend:${{ github.sha }}
+
+      # - name: Build and push Frontend image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ./frontend
+      #     push: true
+      #     tags: your-dockerhub-user/petcarehub-frontend:${{ github.sha }}
+
+      # - name: Build and push AI Service image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ./ai-service
+      #     push: true
+      #     tags: your-dockerhub-user/petcarehub-ai:${{ github.sha }}
+
+  # deploy:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   environment: production # 或 staging
+  #   steps:
+  #     - name: Deploy to Server # 實際部署步驟 (e.g., SSH, kubectl, AWS CLI)
+  #       run: echo "部署中..."
